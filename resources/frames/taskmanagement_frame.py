@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import simpledialog,messagebox
 from resources.services.auth import auth_with_pin
 from resources.services.appfuncs import (
-    search,
+    search_with_glob,
     get_running_tasks
 )
 
@@ -96,18 +96,19 @@ class TaskManager(ctk.CTkFrame):
             messagebox.showerror('Incorrect Input', f"Please select a program to RUN!")
 
     def on_btn_search(self):
+        self.Listbox2.configure(state='normal')
         self.Listbox2.delete(0, tk.END)
         self.Listbox2.insert(tk.END, f"Searching for {self.search_query.get()}. Please wait...")
-        self.result = {file:path for file,path in search(filename=self.search_query.get())}
+        self.result = {file:path for file,path in search_with_glob(filename=self.search_query.get())}
 
-        if self.result is not None:
+        if self.result:
             self.Listbox2.delete(0, tk.END)
             for i, f in enumerate(sorted(set(self.result.items())), start=1):
                 self.Listbox2.insert(i, f"  {f[0]}")
         else:
             self.Listbox2.delete(0, tk.END)
             self.Listbox2.insert(0, " ")
-            self.Listbox2.insert(1, f"  No executable files with name {self.search_query.get()} were found")
+            self.Listbox2.insert(1, f"  No executable files with name '{self.search_query.get()}' were found")
             self.Listbox2.configure(state='disabled')
 
     def on_btn_stop(self):

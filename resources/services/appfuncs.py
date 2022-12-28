@@ -1,4 +1,17 @@
 import os, subprocess
+import glob
+from typing import Union
+
+def search_with_glob(filename: Union[str,None]=None, root_dirs: list[str]=['C:\\Program Files', 'C:\\Program Files']):
+    if filename is not None:
+        globs = [glob.iglob(pathname=f'**/*{filename}*.exe', root_dir=root_dirs[i], recursive=True) for i in range(len(root_dirs))]
+    else:
+        globs = [glob.iglob(pathname=f'**/*.exe', root_dir=root_dirs[i], recursive=True) for i in range(len(root_dirs))]
+    
+    for path_generator in globs:
+        for filepath in path_generator:
+            yield os.path.basename(filepath),filepath
+
 
 def search(filename: str, search_path: str = "C:\\Program Files"):
     for root, _, files in os.walk(search_path):
@@ -21,3 +34,8 @@ def get_sys_info():
         for byt in info:
             if ':' in byt:
                 yield byt.strip()
+
+if __name__=='__main__':
+    result = {file:path for file,path in search_with_glob()}
+    for i, f in enumerate(sorted(set(result.items())), start=1):
+        print(i, f[0], sep=': ')
